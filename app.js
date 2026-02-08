@@ -1,4 +1,9 @@
-// ---------- helpers ----------
+// ----------------- helpers -----------------
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 function normalize(s) {
   return (s || "")
     .trim()
@@ -6,54 +11,166 @@ function normalize(s) {
     .replace(/\s+/g, " ");
 }
 
-document.getElementById("resetBtn").addEventListener("click", hardReset);
+// ----------------- QUIZ (10 total; Q10 is Valentine) -----------------
+const quizTitle = document.getElementById("quizTitle");
+const quizSub = document.getElementById("quizSub");
+const progressText = document.getElementById("progressText");
+const questionArea = document.getElementById("questionArea");
+const quizMsg = document.getElementById("quizMsg");
+const quizBackBtn = document.getElementById("quizBackBtn");
+const quizSubmitBtn = document.getElementById("quizSubmitBtn");
 
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// EDIT THESE.
+// Types: "text", "mc", "valentine"
+const QUESTIONS = [
+  { type: "text", prompt: "1) What was the first place we went together?", answers: ["the cafe", "starbucks", "chipotle"] },
+  { type: "text", prompt: "2) Our inside joke word/phrase?", answers: ["banana phone", "our inside joke"] },
+  { type: "mc", prompt: "3) Pick the correct one:", choices: ["Option A", "Option B", "Option C"], correctIndex: 1 },
+  { type: "text", prompt: "4) What month did we ______?", answers: ["june"] },
+  { type: "text", prompt: "5) What’s my go-to order?", answers: ["iced latte", "latte"] },
+  { type: "mc", prompt: "6) Which one is true?", choices: ["A", "B", "C"], correctIndex: 0 },
+  { type: "text", prompt: "7) Where was our best ______?", answers: ["beach"] },
+  { type: "text", prompt: "8) What show/movie did we binge?", answers: ["______"] },
+  { type: "text", prompt: "9) Finish this phrase: “______”", answers: ["______"] },
+  { type: "valentine", prompt: "10) Final question: Will you be my Valentine?" }
+];
+
+let qIndex = 0;
+
+function loadQuizState() {
+  const saved = localStorage.getItem("quizState");
+  if (!saved) return;
+  try {
+    const obj = JSON.parse(saved);
+    if (typeof obj.qIndex === "number") qIndex = obj.qIndex;
+  } catch {}
 }
 
-// ---------- QUIZ GATE ----------
-const quizForm = document.getElementById("quizForm");
-const gateMsg = document.getElementById("gateMsg");
+function saveQuizState() {
+  localStorage.setItem("quizState", JSON.stringify({ qIndex }));
+}
 
-// EDIT THESE ANSWERS:
-const ANSWERS = {
-  q1: ["the cafe", "starbucks", "chipotle"], // acceptable answers (normalized)
-  q2: ["our inside joke", "banana phone"],   // acceptable answers
-  q3: "b"                                    // correct radio value
-};
+function renderQuizQuestion() {
+  quizMsg.textContent = "";
 
-quizForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+  quizTitle.textContent = "Unlock Your Wrapped";
+  quizSub.textContent = "Get each one right to move forward.";
+  progressText.textContent = `Question ${qIndex + 1} / ${QUESTIONS.length}`;
 
-  const q1 = normalize(document.getElementById("q1").value);
-  const q2 = normalize(document.getElementById("q2").value);
-  const q3 = (new FormData(quizForm).get("q3") || "").toString();
+  quizBackBtn.disabled = qIndex === 0;
 
-  const q1Ok = ANSWERS.q1.map(normalize).includes(q1);
-  const q2Ok = ANSWERS.q2.map(normalize).includes(q2);
-  const q3Ok = q3 === ANSWERS.q3;
+  const q = QUESTIONS[qIndex];
 
-  if (q1Ok && q2Ok && q3Ok) {
-    gateMsg.textContent = "Unlocked ✅";
-    localStorage.setItem("unlocked", "true");
-    startWrapped();
-    showScreen("screen-wrapped");
+  if (q.type === "text") {
+    quizSubmitBtn.disabled = false;
+    quizSubmitBtn.textContent = "Submit";
+    questionArea.innerHTML = `
+      <div class="q">
+        <label for="qInput">${q.prompt}</label>
+        <input id="qInput" type="text" autocomplete="off" placeholder="Type your answer" />
+      </div>
+    `;
+    setTimeout(() => document.getElementById("qInput")?.focus(), 0);
+    return;
+  }
+
+  if (q.type === "mc") {
+    quizSubmitBtn.disabled = false;
+    quizSubmitBtn.textContent = "Submit";
+
+    const radios = q.choices.map((c, i) => `
+      <label>
+        <input type="radio" name="mc" value="${i}"> ${c}
+      </label>
+    `).join("");
+
+    questionArea.innerHTML = `
+      <div class="q">
+        <label>${q.prompt}</label>
+        <div class="choices">${radios}</div>
+      </div>
+    `;
+    return;
+  }
+
+  if (q.type === "valentine") {
+    // Q10: no Submit; use buttons
+    quizSubmitBtn.disabled = true;
+    quizSubmitBtn.textContent = "Submit";
+
+    questionArea.innerHTML = `
+      <div class="q">
+        <label>${q.prompt}</label>
+        <div class="row" style="margin-top:12px; flex-wrap:wrap;">
+          <button id="valYes" class="btn" type="button">Yes</button>
+          <button id="valNo" class="btn ghost" type="button">No</button>
+        </div>
+        <p class="msg" style="margin-top:10px;">If you press “Yes”, it unlocks your Wrapped.</p>
+      </div>
+    `;
+
+    document.getElementById("valYes").addEventListener("click", () => {
+      localStorage.setItem("unlocked", "true");
+      // optional: store that she reached the end of quiz
+      localStorage.setItem("quizState", JSON.stringify({ qIndex: qIndex }));
+      startWrapped();
+      showScreen("screen-wrapped");
+    });
+
+    document.getElementById("valNo").addEventListener("click", () => {
+      quizMsg.textContent = "Okay. Wrapped stays locked.";
+    });
+
+    return;
+  }
+}
+
+function checkAnswerCorrect() {
+  const q = QUESTIONS[qIndex];
+
+  if (q.type === "text") {
+    const val = normalize(document.getElementById("qInput")?.value);
+    return q.answers.map(normalize).includes(val);
+  }
+
+  if (q.type === "mc") {
+    const checked = document.querySelector('input[name="mc"]:checked');
+    if (!checked) return false;
+    return Number(checked.value) === q.correctIndex;
+  }
+
+  return false;
+}
+
+quizSubmitBtn.addEventListener("click", () => {
+  if (QUESTIONS[qIndex].type === "valentine") return;
+
+  if (checkAnswerCorrect()) {
+    quizMsg.textContent = "Correct ✅";
+    qIndex = Math.min(qIndex + 1, QUESTIONS.length - 1);
+    saveQuizState();
+    renderQuizQuestion();
   } else {
-    gateMsg.textContent = "Nope 😈 Try again (spelling counts).";
+    quizMsg.textContent = "Incorrect. Try again.";
   }
 });
 
-// ---------- WRAPPED SLIDES ----------
-const slideEl = document.getElementById("slide");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
+quizBackBtn.addEventListener("click", () => {
+  if (qIndex <= 0) return;
+  qIndex--;
+  saveQuizState();
+  renderQuizQuestion();
+});
 
-// EDIT THESE SLIDES:
-const slides = [
+// ----------------- WRAPPED -----------------
+const slideEl = document.getElementById("slide");
+const wrappedBackBtn = document.getElementById("wrappedBackBtn");
+const wrappedNextBtn = document.getElementById("wrappedNextBtn");
+
+// EDIT THESE SLIDES (optionally add image: "assets/images/pic1.jpg")
+const SLIDES = [
   { title: "Top Moment", body: "That day we ______. Still undefeated." },
-  { title: "Top Place", body: "Apparently we kept ending up at ______." },
+  { title: "Top Place", body: "Somehow we always ended up at ______." },
   { title: "Most Replayed", body: "The thing you said that I still quote: “______”" },
   { title: "Best Duo Stat", body: "Laughs per hour: suspiciously high." },
   { title: "Summary", body: "You made my year better. That’s the whole report." }
@@ -62,15 +179,16 @@ const slides = [
 let slideIndex = 0;
 
 function renderSlide() {
-  const s = slides[slideIndex];
+  const s = SLIDES[slideIndex];
+
   slideEl.innerHTML = `
     <h2>${s.title}</h2>
+    ${s.image ? `<img class="slide-img" src="${s.image}" alt="">` : ""}
     <p>${s.body}</p>
-    <p class="msg">Slide ${slideIndex + 1} / ${slides.length}</p>
+    <p class="msg">Slide ${slideIndex + 1} / ${SLIDES.length}</p>
   `;
 
-  prevBtn.disabled = slideIndex === 0;
-  nextBtn.textContent = (slideIndex === slides.length - 1) ? "Finish" : "Next";
+  wrappedNextBtn.textContent = (slideIndex === SLIDES.length - 1) ? "Done" : "Next";
 }
 
 function startWrapped() {
@@ -78,104 +196,38 @@ function startWrapped() {
   renderSlide();
 }
 
-prevBtn.addEventListener("click", () => {
-  if (slideIndex > 0) {
-    slideIndex--;
-    renderSlide();
-  }
-});
-
-nextBtn.addEventListener("click", () => {
-  if (slideIndex < slides.length - 1) {
+wrappedNextBtn.addEventListener("click", () => {
+  if (slideIndex < SLIDES.length - 1) {
     slideIndex++;
     renderSlide();
   } else {
-    showScreen("screen-question");
+    // End behavior: return to quiz start (or keep on last slide)
+    showScreen("screen-quiz");
+    qIndex = 0;
+    saveQuizState();
+    renderQuizQuestion();
   }
 });
 
-// ---------- FINAL QUESTION BUTTONS ----------
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const softNoBtn = document.getElementById("softNoBtn");
-const finalMsg = document.getElementById("finalMsg");
-const buttonArea = document.getElementById("buttonArea");
-
-let noCount = 0;
-
-// Place "No" initially somewhere reasonable
-function placeNoRandom() {
-  const area = buttonArea.getBoundingClientRect();
-  const btn = noBtn.getBoundingClientRect();
-
-  const maxX = Math.max(0, area.width - btn.width);
-  const maxY = Math.max(0, area.height - btn.height);
-
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-
-  noBtn.style.position = "absolute";
-  noBtn.style.left = `${x}px`;
-  noBtn.style.top = `${y}px`;
-}
-
-function growYes() {
-  const scale = Math.min(1 + noCount * 0.12, 2.0); // cap it so it doesn't get stupid
-  yesBtn.style.transform = `scale(${scale})`;
-}
-
-// “No runs away” on hover/move
-noBtn.addEventListener("mouseenter", () => {
-  // After a few tries, let her click it if she wants (less pressure)
-  if (noCount >= 6) return;
-  placeNoRandom();
+// Back button on Wrapped goes to quiz page (your request)
+wrappedBackBtn.addEventListener("click", () => {
+  showScreen("screen-quiz");
+  renderQuizQuestion();
 });
 
-noBtn.addEventListener("click", () => {
-  noCount++;
-  growYes();
-
-  if (noCount < 6) {
-    finalMsg.textContent = "Nope. Try again 😈";
-    placeNoRandom();
-  } else {
-    // At this point, stop running away so "No" is a real option.
-    finalMsg.textContent = "Okay okay. Real answer is allowed now.";
-  }
-});
-
-yesBtn.addEventListener("click", () => {
-  finalMsg.textContent = "YAY 💜 (Screenshot this and send it to me.)";
-  yesBtn.disabled = true;
-  noBtn.disabled = true;
-  softNoBtn.disabled = true;
-});
-
-//reset
-function hardReset() {
-  localStorage.clear();
-  location.reload();
-}
-
-
-// “Not right now” is always available and ends politely
-softNoBtn.addEventListener("click", () => {
-  finalMsg.textContent = "All good. I’m just happy you made it this far.";
-  yesBtn.disabled = true;
-  noBtn.disabled = true;
-  softNoBtn.disabled = true;
-});
-
-// ---------- resume state ----------
+// ----------------- init -----------------
 (function init() {
+  loadQuizState();
+
+  // If you want the site to ALWAYS start fresh when you open it, uncomment:
+  // localStorage.clear();
+
   const unlocked = localStorage.getItem("unlocked") === "true";
   if (unlocked) {
     startWrapped();
     showScreen("screen-wrapped");
   } else {
-    showScreen("screen-gate");
+    showScreen("screen-quiz");
+    renderQuizQuestion();
   }
-
-  // Initial layout for "No"
-  setTimeout(placeNoRandom, 50);
 })();

@@ -3,79 +3,45 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Unlock</title>
+  <title>Your Year With Us</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app">
 
-    <!-- SCREEN 1: QUESTIONS GATE -->
-    <section id="screen-gate" class="screen active">
-      <h1>Quick check before you unlock your Wrapped</h1>
-      <p class="sub">Answer a few questions 😈</p>
+    <!-- SCREEN 1: QUIZ (1 question at a time; Q10 is Valentine) -->
+    <section id="screen-quiz" class="screen active">
+      <h1 id="quizTitle">Unlock Your Wrapped</h1>
+      <p class="sub" id="quizSub">Answer each question to continue.</p>
 
-      <form id="quizForm" class="card">
-        <div class="q">
-          <label for="q1">1) What was the first place we went together?</label>
-          <input id="q1" name="q1" type="text" autocomplete="off" placeholder="One or two words" />
+      <div class="card">
+        <p class="msg" id="progressText"></p>
+
+        <div id="questionArea"></div>
+
+        <div class="row">
+          <button id="quizBackBtn" class="btn ghost" type="button">Back</button>
+          <button id="quizSubmitBtn" class="btn" type="button">Submit</button>
         </div>
 
-        <div class="q">
-          <label for="q2">2) Our “thing” (inside joke word/phrase)?</label>
-          <input id="q2" name="q2" type="text" autocomplete="off" placeholder="Exact phrase" />
-        </div>
-
-        <div class="q">
-          <label>3) Pick the correct one:</label>
-          <div class="choices">
-            <label><input type="radio" name="q3" value="a" /> Option A</label>
-            <label><input type="radio" name="q3" value="b" /> Option B</label>
-            <label><input type="radio" name="q3" value="c" /> Option C</label>
-          </div>
-        </div>
-
-        <button type="submit" class="btn">Unlock</button>
-        <p id="gateMsg" class="msg"></p>
-      </form>
+        <p id="quizMsg" class="msg"></p>
+      </div>
     </section>
 
-    <!-- SCREEN 2: WRAPPED -->
+    <!-- SCREEN 2: WRAPPED (Back returns to quiz) -->
     <section id="screen-wrapped" class="screen">
       <div class="wrapped-top">
         <h1>Your Year With Us</h1>
         <p class="sub">Tap next to move through the slides.</p>
       </div>
 
-      <div id="slide" class="slide card">
-        <!-- JS injects slide content -->
-      </div>
+      <div id="slide" class="slide card"></div>
 
       <div class="wrapped-controls">
-        <button id="prevBtn" class="btn ghost">Back</button>
-        <button id="nextBtn" class="btn">Next</button>
+        <button id="wrappedBackBtn" class="btn ghost" type="button">Back</button>
+        <button id="wrappedNextBtn" class="btn" type="button">Next</button>
       </div>
     </section>
-
-    <!-- SCREEN 3: QUESTION -->
-    <section id="screen-question" class="screen">
-      <h1>Okay. Final question.</h1>
-      <p class="sub">No pressure. Just vibes.</p>
-
-      <div class="card ask">
-        <h2>Will you be my Valentine?</h2>
-
-        <div class="button-area" id="buttonArea">
-          <button id="yesBtn" class="btn yes">Yes</button>
-          <button id="noBtn" class="btn no" type="button">No</button>
-        </div>
-
-        <p id="finalMsg" class="msg"></p>
-        <button id="softNoBtn" class="link-btn" type="button">
-          Not right now
-        </button>
-      </div>
-    </section>
-    <button id="resetBtn" style="display:none;">Reset</button>
 
   </main>
 
