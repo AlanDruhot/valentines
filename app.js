@@ -6,6 +6,8 @@ function normalize(s) {
     .replace(/\s+/g, " ");
 }
 
+document.getElementById("resetBtn").addEventListener("click", hardReset);
+
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -148,6 +150,13 @@ yesBtn.addEventListener("click", () => {
   noBtn.disabled = true;
   softNoBtn.disabled = true;
 });
+
+//reset
+function hardReset() {
+  localStorage.clear();
+  location.reload();
+}
+
 
 // “Not right now” is always available and ends politely
 softNoBtn.addEventListener("click", () => {
