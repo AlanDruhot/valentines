@@ -1,3 +1,6 @@
+// FORCE FULL RESET ON EVERY PAGE LOAD (GitHub Pages)
+localStorage.clear();
+
 // ----------------- helpers -----------------
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -9,6 +12,15 @@ function normalize(s) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
+}
+
+// ----------------- DEV RESET BUTTON -----------------
+const devResetBtn = document.getElementById("devResetBtn");
+if (devResetBtn) {
+  devResetBtn.addEventListener("click", () => {
+    localStorage.clear();
+    location.reload();
+  });
 }
 
 // ----------------- QUIZ (10 total; Q10 is Valentine) -----------------
@@ -36,19 +48,6 @@ const QUESTIONS = [
 ];
 
 let qIndex = 0;
-
-function loadQuizState() {
-  const saved = localStorage.getItem("quizState");
-  if (!saved) return;
-  try {
-    const obj = JSON.parse(saved);
-    if (typeof obj.qIndex === "number") qIndex = obj.qIndex;
-  } catch {}
-}
-
-function saveQuizState() {
-  localStorage.setItem("quizState", JSON.stringify({ qIndex }));
-}
 
 function renderQuizQuestion() {
   quizMsg.textContent = "";
@@ -110,9 +109,6 @@ function renderQuizQuestion() {
     `;
 
     document.getElementById("valYes").addEventListener("click", () => {
-      localStorage.setItem("unlocked", "true");
-      // optional: store that she reached the end of quiz
-      localStorage.setItem("quizState", JSON.stringify({ qIndex: qIndex }));
       startWrapped();
       showScreen("screen-wrapped");
     });
@@ -148,7 +144,6 @@ quizSubmitBtn.addEventListener("click", () => {
   if (checkAnswerCorrect()) {
     quizMsg.textContent = "Correct ✅";
     qIndex = Math.min(qIndex + 1, QUESTIONS.length - 1);
-    saveQuizState();
     renderQuizQuestion();
   } else {
     quizMsg.textContent = "Incorrect. Try again.";
@@ -158,7 +153,6 @@ quizSubmitBtn.addEventListener("click", () => {
 quizBackBtn.addEventListener("click", () => {
   if (qIndex <= 0) return;
   qIndex--;
-  saveQuizState();
   renderQuizQuestion();
 });
 
@@ -201,15 +195,14 @@ wrappedNextBtn.addEventListener("click", () => {
     slideIndex++;
     renderSlide();
   } else {
-    // End behavior: return to quiz start (or keep on last slide)
+    // End behavior: return to quiz start
     showScreen("screen-quiz");
     qIndex = 0;
-    saveQuizState();
     renderQuizQuestion();
   }
 });
 
-// Back button on Wrapped goes to quiz page (your request)
+// Back button on Wrapped goes to quiz
 wrappedBackBtn.addEventListener("click", () => {
   showScreen("screen-quiz");
   renderQuizQuestion();
@@ -217,17 +210,7 @@ wrappedBackBtn.addEventListener("click", () => {
 
 // ----------------- init -----------------
 (function init() {
-  loadQuizState();
-
-  // If you want the site to ALWAYS start fresh when you open it, uncomment:
-  // localStorage.clear();
-
-  const unlocked = localStorage.getItem("unlocked") === "true";
-  if (unlocked) {
-    startWrapped();
-    showScreen("screen-wrapped");
-  } else {
-    showScreen("screen-quiz");
-    renderQuizQuestion();
-  }
+  showScreen("screen-quiz");
+  qIndex = 0;
+  renderQuizQuestion();
 })();

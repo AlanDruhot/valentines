@@ -96,3 +96,25 @@ input[type="text"]:focus {
 }
 
 .wrapped-controls { display: flex; gap: 12px; margin-top: 14px; }
+
+/* CONSTANT DEV RESET BUTTON (bottom-left) */
+#devResetBtn {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  z-index: 9999;
+
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+
+  background: rgba(0,0,0,0.6);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+#devResetBtn:hover {
+  color: white;
+  border-color: rgba(255,255,255,0.6);
+}
