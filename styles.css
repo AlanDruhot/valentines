@@ -97,26 +97,385 @@ input[type="text"]:focus {
 
 .wrapped-controls { display: flex; gap: 12px; margin-top: 14px; }
 
-/* CONSTANT DEV RESET BUTTON (bottom-left) */
-#devResetBtn {
-  position: fixed;
-  bottom: 14px;
-  left: 14px;
-  z-index: 9999;
-
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.25);
-
-  background: rgba(0,0,0,0.6);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
+/* ---------- Full-page lovey screens (congrats + wrapped) ---------- */
+/* When active, these take over the entire viewport — completely separate page */
+.lovey-screen.active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed !important;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  z-index: 100;
+  background: linear-gradient(165deg, #2d1b2e 0%, #1a0f1f 30%, #3d2438 60%, #2d1b2e 100%);
+  overflow-y: auto;
 }
-#devResetBtn:hover {
-  color: white;
-  border-color: rgba(255,255,255,0.6);
+
+.lovey-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 182, 193, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 192, 203, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.lovey-screen .card,
+.lovey-card {
+  background: linear-gradient(180deg, rgba(255, 248, 250, 0.97), rgba(255, 240, 245, 0.95));
+  border: 2px solid rgba(255, 182, 193, 0.5);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+  color: #3d2438;
+}
+
+.lovey-screen h1,
+.lovey-screen .congrats-title {
+  color: #8b2942;
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.lovey-screen .sub,
+.lovey-screen .congrats-sub,
+.lovey-screen .congrats-line {
+  color: #6b4a5a;
+  margin: 0 0 10px;
+}
+
+.lovey-screen .msg {
+  color: #8b6b7a;
+}
+
+.lovey-screen .btn {
+  background: linear-gradient(180deg, #c44569, #a63d5a);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(196, 69, 105, 0.4);
+}
+
+.lovey-screen .btn:hover {
+  background: linear-gradient(180deg, #d44d73, #b84562);
+  box-shadow: 0 6px 18px rgba(196, 69, 105, 0.5);
+}
+
+.lovey-screen .btn.ghost {
+  background: transparent;
+  color: #6b4a5a;
+  border: 2px solid rgba(139, 41, 66, 0.4);
+}
+
+.lovey-screen .btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(139, 41, 66, 0.6);
+}
+
+/* Congrats page layout — centered on full page */
+.congrats-content {
+  position: relative;
+  z-index: 1;
+  width: min(480px, 100%);
+  flex-shrink: 0;
+}
+
+.congrats-card {
+  text-align: center;
+}
+
+.snoopy-spot {
+  margin-bottom: 12px;
+}
+
+.snoopy-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto;
+  border: 3px solid rgba(255, 182, 193, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.congrats-title {
+  margin-top: 4px;
+}
+
+.congrats-line {
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+/* Wrapped: image pages — full viewport; slide scrolls if content doesn't fit */
+#screen-wrapped.active {
+  justify-content: flex-start;
+  padding: 0;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+#screen-wrapped .wrapped-top {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  padding: 12px 16px 8px;
+}
+
+#screen-wrapped #slide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0;
+  overflow-y: auto;
+}
+
+#screen-wrapped #slide.lovey-card {
+  background: linear-gradient(180deg, #ffecf0, #ffdde5);
+  border: none;
+  border-top: 2px solid rgba(255, 182, 193, 0.6);
+  padding: 16px;
+  box-shadow: none;
+}
+
+#screen-wrapped .slide h2 {
+  color: #8b2942;
+  margin: 0 0 14px;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+#screen-wrapped .slide p {
+  color: #5a3d4a;
+  line-height: 1.5;
+}
+
+/* Congrats: background image (put assets/congrats-bg.jpg in assets folder) */
+.congrats-bg-img {
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/congrats-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Wrapped: image grids — fill available viewport space */
+.wrapped-img-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 8px;
+  align-self: stretch;
+}
+
+.wrapped-img-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.wrapped-img-grid-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.wrapped-img-grid-5,
+.wrapped-img-grid-6 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.wrapped-img-cell {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 182, 193, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.wrapped-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Wrapped: final paragraph page — fills viewport, scrolls if needed */
+.slide-paragraph-wrap {
+  flex: 1;
+  margin: 0;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-paragraph-text {
+  color: #5a3d4a;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  line-height: 1.65;
+  margin: 0;
+}
+
+#screen-wrapped .wrapped-controls {
+  position: relative;
+  z-index: 1;
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+
+/* ---------- Intro: CTF-style mission brief ---------- */
+.intro-screen.active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.intro-bg {
+  position: fixed;
+  inset: 0;
+  background: #0a0e14;
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.intro-content {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 100%);
+}
+
+.intro-card {
+  font-family: "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: rgba(0, 12, 18, 0.95);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.15), inset 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.intro-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.4);
+}
+
+.intro-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #0a0e14;
+  background: #00ff88;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.intro-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #00ff88;
+  margin: 0 0 8px;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.intro-subtitle {
+  font-size: 0.95rem;
+  color: rgba(0, 255, 136, 0.8);
+  margin: 0;
+}
+
+.intro-body {
+  color: #b8e6d0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.intro-line {
+  margin: 0 0 14px;
+}
+
+.intro-line strong {
+  color: #00ff88;
+}
+
+.intro-rules {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.intro-rules li {
+  margin-bottom: 8px;
+}
+
+.intro-warn {
+  margin-top: 18px;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.08);
+  border-left: 4px solid #00ff88;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.intro-actions {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.intro-btn {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  background: #00ff88 !important;
+  color: #0a0e14 !important;
+  border: 2px solid #00ff88 !important;
+  padding: 14px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.intro-btn:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Terminal-style quiz visuals */
@@ -165,4 +524,132 @@ input[type="text"]:focus {
   background: transparent;
   color: #fff;
   border: 1px solid #fff;
+}
+
+/* ---------- Valentine question: full pink, background image, hearts ---------- */
+#screen-quiz.valentine-active {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  background-color: #ffb6c1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+#screen-quiz.valentine-active .card {
+  background: rgba(255, 182, 193, 0.85);
+  border: 2px solid rgba(255, 105, 180, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 520px;
+  width: 100%;
+}
+
+#screen-quiz.valentine-active #quizTitle,
+#screen-quiz.valentine-active .sub,
+#screen-quiz.valentine-active #progressText {
+  color: #8b2942;
+}
+
+/* Question 10: no Back or Submit, only Yes/No */
+#screen-quiz.valentine-active #quizTitle,
+#screen-quiz.valentine-active .sub,
+#screen-quiz.valentine-active #progressText,
+#screen-quiz.valentine-active .card > .row {
+  display: none !important;
+}
+
+.valentine-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+}
+
+.valentine-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.valentine-hearts .heart {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.8;
+  color: #ff69b4;
+  animation: heartFly 12s linear infinite;
+}
+
+.valentine-hearts .heart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.valentine-hearts .heart-0 { left: -10%; top: 10%; animation-delay: 0s; animation-duration: 14s; }
+.valentine-hearts .heart-1 { left: -10%; top: 30%; animation-delay: 1.5s; animation-duration: 11s; }
+.valentine-hearts .heart-2 { left: -10%; top: 50%; animation-delay: 3s; animation-duration: 16s; }
+.valentine-hearts .heart-3 { left: -10%; top: 70%; animation-delay: 0.5s; animation-duration: 13s; }
+.valentine-hearts .heart-4 { left: -10%; top: 85%; animation-delay: 2.5s; animation-duration: 10s; }
+.valentine-hearts .heart-5 { left: -10%; top: 20%; animation-delay: 4s; animation-duration: 15s; }
+
+@keyframes heartFly {
+  0% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 0.75; }
+  100% { transform: translateX(120vw) translateY(-20vh) rotate(360deg); opacity: 0.4; }
+}
+
+.valentine-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.valentine-prompt {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #8b2942;
+  margin: 0 0 12px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.valentine-msg {
+  color: #6b4a5a;
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+}
+
+.valentine-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+#screen-quiz.valentine-active .valentine-yes {
+  background: linear-gradient(180deg, #c44569, #a63d5a);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(196, 69, 105, 0.5);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+#screen-quiz.valentine-active .valentine-no {
+  background: rgba(255, 255, 255, 0.4);
+  color: #6b4a5a;
+  border: 2px solid rgba(139, 41, 66, 0.5);
+  cursor: default;
 }

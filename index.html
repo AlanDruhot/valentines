@@ -9,9 +9,38 @@
 <body>
   <main class="app">
 
+    <!-- SCREEN 0: INTRO (CTF-style mission brief; must accept to play) -->
+    <section id="screen-intro" class="screen intro-screen active">
+      <div class="intro-bg"></div>
+      <div class="intro-content">
+        <div class="intro-card">
+          <div class="intro-header">
+            <span class="intro-badge">CLASSIFIED</span>
+            <h1 class="intro-title">DO YOU LOVE ALAN — MISSION BRIEF</h1>
+            <p class="intro-subtitle">Operation: big dawg</p>
+          </div>
+          <div class="intro-body">
+            <p class="intro-line"><strong>OBJECTIVE:</strong> Answer a series of questions to prove you know alan druhot. Complete all stages to and unlock your surprise.</p>
+            <p class="intro-line"><strong>RULES:</strong></p>
+            <ul class="intro-rules">
+              <li>You will face 10 challenges. Get each one right to advance.</li>
+              <li>No skipping. The surprise is only revealed after a full run.</li>
+              <li>Text challenges: type your answer (all lowercase).</li>
+              <li>Multiple choice: select the correct option and submit.</li>
+              <li>Final challenge: a special question — choose wisely.</li>
+            </ul>
+            <p class="intro-line intro-warn">Only by completing the operation do you gain access to your surprise. Good luck, meep.</p>
+          </div>
+          <div class="intro-actions">
+            <button id="introStartBtn" class="btn intro-btn" type="button">Accept mission &amp; start</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- SCREEN 1: QUIZ (1 question at a time; Q10 is Valentine) -->
-    <section id="screen-quiz" class="screen active">
-      <h1 id="quizTitle">Unlock Your Wrapped</h1>
+    <section id="screen-quiz" class="screen">
+      <h1 id="quizTitle">Unlock Your Surprise</h1>
       <p class="sub" id="quizSub">Answer each question to continue.</p>
 
       <div class="card">
@@ -28,14 +57,35 @@
       </div>
     </section>
 
-    <!-- SCREEN 2: WRAPPED (Back returns to quiz) -->
-    <section id="screen-wrapped" class="screen">
+    <!-- SCREEN 2: CONGRATS (between quiz and wrapped) -->
+    <section id="screen-congrats" class="screen lovey-screen">
+      <div class="congrats-bg-img" aria-hidden="true"></div>
+      <div class="lovey-bg" aria-hidden="true"></div>
+      <div class="congrats-content">
+        <div class="congrats-card card">
+          <div class="snoopy-spot">
+            <img class="snoopy-img" src="assets/snoopystill.jpg" alt="">
+          </div>
+          <h1 class="congrats-title">Congratulations!</h1>
+          <p class="congrats-sub">You said yes! That’s the best answer. 💕</p>
+          <p class="congrats-line">Here’s your surprise.</p>
+          <div class="row">
+            <button id="congratsBackBtn" class="btn ghost" type="button">Back</button>
+            <button id="congratsNextBtn" class="btn" type="button">See your Wrapped</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: WRAPPED (same style as congrats) -->
+    <section id="screen-wrapped" class="screen lovey-screen">
+      <div class="lovey-bg" aria-hidden="true"></div>
       <div class="wrapped-top">
-        <h1>Your Year With Us</h1>
+        <h1>Love slides</h1>
         <p class="sub">Tap next to move through the slides.</p>
       </div>
 
-      <div id="slide" class="slide card"></div>
+      <div id="slide" class="slide card lovey-card"></div>
 
       <div class="wrapped-controls">
         <button id="wrappedBackBtn" class="btn ghost" type="button">Back</button>
@@ -44,9 +94,6 @@
     </section>
 
   </main>
-
-  <!-- CONSTANT DEV RESET BUTTON (bottom-left) -->
-  <button id="devResetBtn" title="Reset site">Reset</button>
 
   <script src="app.js"></script>
 </body>
